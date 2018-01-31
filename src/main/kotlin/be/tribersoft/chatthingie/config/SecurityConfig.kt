@@ -27,6 +27,7 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/index.html","/static/js/*.js", "/static/css/*.css", "/static/*.png").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(WebSocketCleanUpHandler())
     }
@@ -48,7 +49,7 @@ class UserDetailsService(private val userRepository: UserRepository) {
 
 class WebSocketCleanUpHandler(): LogoutSuccessHandler {
     override fun onLogoutSuccess(req: HttpServletRequest?, resp: HttpServletResponse, auth: Authentication) {
-        println("close all sockets")
+        println("close all sockets") // do something smart with the JSESSIONID cookie
         resp.status = HttpStatus.OK.value()
         resp.writer.flush()
     }
