@@ -8,11 +8,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import org.springframework.stereotype.Component
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @Configuration
 @EnableWebSecurity
@@ -24,9 +28,7 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers("/login").permitAll()
                 .anyRequest().authenticated()
-                .and().logout().deleteCookies("JSESSIONID")
-                .and().logout().logoutSuccessHandler(( HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
-
+                .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(WebSocketCleanUpHandler())
     }
 
     @Bean
@@ -41,5 +43,14 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
 @Component
 class UserDetailsService(private val userRepository: UserRepository) {
     fun login(username: String, password: String) = userRepository.getByUsernameAndPassword(username, password)
+
+}
+
+class WebSocketCleanUpHandler(): LogoutSuccessHandler {
+    override fun onLogoutSuccess(req: HttpServletRequest?, resp: HttpServletResponse, auth: Authentication) {
+        println("close all sockets")
+        resp.status = HttpStatus.OK.value()
+        resp.writer.flush()
+    }
 
 }
