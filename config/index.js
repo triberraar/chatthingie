@@ -11,6 +11,12 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
+      '/api/chat': {
+        target: 'ws://localhost:1234',
+        changeOrigin: true,
+        pathRewrite: {},
+        ws: true
+      },
       '/api': {
         target: 'http://localhost:1234',
         changeOrigin: true,
