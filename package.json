@@ -9,13 +9,19 @@
     "start": "npm run dev",
     "unit": "jest --config test/unit/jest.conf.js --coverage",
     "test": "npm run unit",
-    "lint": "eslint --ext .js,.vue src test/unit/specs",
+    "lint": "eslint --ext .js,.vue src/main/vue test/unit/specs",
+    "lint:fix": "eslint --fix --ext .js,.vue src/main/vue test/unit/specs",
     "build": "node build/build.js"
   },
   "dependencies": {
+    "animate.css": "^3.5.2",
+    "axios": "^0.17.1",
+    "pug": "^2.0.0-rc.4",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
-    "vuetify": "^0.17.6"
+    "vuetify": "^0.17.6",
+    "vuex": "^3.0.1",
+    "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

@@ -3,3 +3,9 @@ server:
 #logging:
 #  level:
 #    root: debug
+---
+spring:
+  profiles: proxy
+server:
+  servlet:
+    context-path: /api

@@ -13,7 +13,9 @@ class ChatHandler : TextWebSocketHandler() {
         println(message)
     }
 
-    override fun afterConnectionEstablished(session: WebSocketSession?) {
+    override fun afterConnectionEstablished(session: WebSocketSession) {
+      // http session id: session.handshakeHeaders["Cookie"][0].split('=')[1]
+
         println("joiner")
     }
 
