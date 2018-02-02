@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController
 class SecurityResource(private val userDetailsService: UserDetailsService) {
 
     @PostMapping(path = arrayOf("/login"), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE))
-    fun login(@RequestBody userJson: UserJson) {
-        val user = userDetailsService.login(userJson.username, userJson.password)
+    fun login(@RequestBody json: LoginJson) {
+        val user = userDetailsService.login(json.username, json.password)
         val authentication = UsernamePasswordAuthenticationToken(user, "", user.authorities)
         SecurityContextHolder.getContext().authentication = authentication
     }
 }
 
-data class UserJson(val username: String, val password: String)
+data class LoginJson(val username: String, val password: String)

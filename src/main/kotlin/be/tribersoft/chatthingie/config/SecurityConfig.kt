@@ -1,29 +1,25 @@
 package be.tribersoft.chatthingie.config
 
 import be.tribersoft.chatthingie.domain.UserRepository
-import javafx.application.Application
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.event.EventListener
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.session.SessionCreationEvent
 import org.springframework.security.core.session.SessionDestroyedEvent
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import org.springframework.security.web.session.HttpSessionCreatedEvent
 import org.springframework.security.web.session.HttpSessionEventPublisher
 import org.springframework.stereotype.Component
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.socket.messaging.SessionConnectedEvent
-import org.springframework.web.socket.messaging.SessionDisconnectEvent
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -35,10 +31,11 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login").permitAll()
+                .antMatchers("/login").anonymous()
                 .antMatchers("/index.html","/static/js/*.js", "/static/css/*.css", "/static/*.png").permitAll()
                 .anyRequest().authenticated()
-                .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)).permitAll()
+          .and().exceptionHandling().authenticationEntryPoint(Http401AuthenticationEntryPoint())
     }
 
     @Bean
@@ -74,3 +71,9 @@ class SessionStartedListener: ApplicationListener<SessionCreationEvent> {
   }
 }
 
+class Http401AuthenticationEntryPoint: AuthenticationEntryPoint {
+  override fun commence(req: HttpServletRequest?, resp: HttpServletResponse, auth: AuthenticationException) {
+    resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, auth.message)
+  }
+
+}
