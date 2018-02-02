@@ -24,8 +24,6 @@ import axios from 'axios'
 
 export default {
   name: 'Login',
-  created () {
-  },
   data () {
     return {
       valid: true,

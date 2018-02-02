@@ -5,8 +5,13 @@
 <script>
 import { mapActions } from 'vuex'
 import { GET_USER } from '@/store/modules/chat/constants'
+import { connect } from '@/ws'
 
 export default {
+  name: 'home',
+  created () {
+    connect()
+  },
   data () {
     return {}
   },

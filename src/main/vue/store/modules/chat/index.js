@@ -1,15 +1,26 @@
 import axios from 'axios'
-import { GET_USER, USER } from './constants'
+import { GET_USER,
+  USER,
+  CONNECTED,
+  DISCONNECTED
+} from './constants'
 import { BOOTSTRAP } from '@/store/modules/bootstrap/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
 const initial = {
-  user: null
+  user: null,
+  connected: false
 }
 
 const mutations = {
   [USER]: (state, user) => {
     state.user = user
+  },
+  [CONNECTED]: (state) => {
+    state.connected = true
+  },
+  [DISCONNECTED]: (state) => {
+    state.connected = false
   }
 }
 
@@ -27,6 +38,12 @@ const actions = {
 }
 
 const getters = {
+  [USER]: (state) => {
+    return state.user
+  },
+  [CONNECTED]: (state) => {
+    return state.connected
+  }
 }
 
 export default {
