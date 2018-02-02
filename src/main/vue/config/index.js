@@ -1,6 +1,8 @@
 import axios from 'axios'
 import router from '@/router'
+import store from '@/store'
 import { LOGIN } from '@/router/constants'
+import { LOGOUT, NAMESPACE } from '@/store/modules/security/constants'
 
 if (__DEV__) {
   console.log('true')
@@ -10,7 +12,8 @@ if (__DEV__) {
 axios.interceptors.response.use(function (response) {
   return response
 }, function (error) {
-  if (error.response.status === 401 || error.response.status === 403) {
+  if (error.response.status === 401) {
+    store.commit(`${NAMESPACE}/${LOGOUT}`)
     router.push({ name: LOGIN })
   }
   return Promise.reject(error)

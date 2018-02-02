@@ -4,7 +4,8 @@ import Login from '@/pages/Login'
 import Home from '@/pages/Home'
 import store from '@/store'
 import { LOGIN, HOME } from './constants'
-import { NAMESPACE } from '@/store/modules/security/constants'
+import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
+import { NAMESPACE as BOOTSTRAP_NAMESPACE, BOOTSTRAP } from '@/store/modules/bootstrap/constants'
 
 Vue.use(Router)
 
@@ -33,25 +34,25 @@ const router = new Router({
 // use by putting requiredRole: <role> if you want the user to have a specific role for this route
 router.beforeEach((to, from, next) => {
   if (to.name === LOGIN) {
-    if (store.getters[NAMESPACE + '/' + 'loggedIn']) {
-      //  store.dispatch(BOOTSTRAP)
+    if (store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
+      store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
       return next({ name: HOME })
     } else {
       return next()
     }
   }
-  if (to.meta.requiresAuth && !store.getters[NAMESPACE + '/' + 'loggedIn']) {
+  if (to.meta.requiresAuth && !store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
     return next({ name: LOGIN })
   }
   if (to.meta.requiredRole) {
-    const hasRole = store.getters[NAMESPACE + '/' + 'roles'].find(e => {
+    const hasRole = store.getters[SECURITY_NAMESPACE + '/' + 'roles'].find(e => {
       return e === to.meta.requiredRole
     })
     if (!hasRole) {
       return next({ name: LOGIN })
     }
   }
-//  store.dispatch(BOOTSTRAP)
+  store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
   return next()
 })
 

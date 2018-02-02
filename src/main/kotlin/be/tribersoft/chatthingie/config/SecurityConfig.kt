@@ -31,7 +31,7 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login").anonymous()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/index.html","/static/js/*.js", "/static/css/*.css", "/static/*.png").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)).permitAll()

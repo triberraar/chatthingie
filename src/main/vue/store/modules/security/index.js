@@ -1,4 +1,4 @@
-import { LOGIN } from './constants'
+import { LOGIN, LOGOUT } from './constants'
 
 const initial = {
   loggedIn: false
@@ -7,6 +7,9 @@ const initial = {
 const mutations = {
   [LOGIN]: (state) => {
     state.loggedIn = true
+  },
+  [LOGOUT]: (state) => {
+    state.loggedIn = false
   }
 }
 
