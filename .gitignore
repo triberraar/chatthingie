@@ -15,3 +15,4 @@ yarn-error.log*
 *.sln
 *.iml
 target
+src/main/resources/static/static
