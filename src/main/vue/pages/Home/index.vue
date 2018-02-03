@@ -1,12 +1,39 @@
 <template lang="pug">
-  div home
-    v-btn(label="test" @click="test")
+  span
+    v-navigation-drawer(fixed 
+      :clipped="$vuetify.breakpoint.width > 1264"
+      v-model="drawer"
+      app
+      dark)
+      v-list(dens)
+        v-list-tile
+          v-list-tile-action
+            v-icon refresh
+          v-list-tile-title Refresh
+      v-divider
+    v-toolbar(dense fixed clipped-left app)
+      v-toolbar-title
+        v-toolbar-side-icon(@click.stop="drawer = !drawer")
+        | Chattingie
+      v-spacer
+      v-menu(offset-y)
+        v-btn(slot="activator") {{user.username}}
+        v-list
+          v-list-tile(v-if="isAdmin" @click="adminClicked")
+            v-icon accessibility
+            v-list-tile-title.pl-1 Admin
+          v-list-tile(@click="logoutClicked")
+            v-icon lock_open
+            v-list-tile-title.pl-1 Logout
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import { GET_USER } from '@/store/modules/chat/constants'
-import { send } from '@/ws'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { GET_USER, USER, IS_ADMIN } from '@/store/modules/chat/constants'
+import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
+import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
+import { LOGIN } from '@/router/constants'
+import axios from 'axios'
 
 export default {
   name: 'home',
@@ -14,19 +41,39 @@ export default {
   },
   data () {
     return {
+      drawer: null
     }
   },
+  computed: {
+    ...mapGetters({
+      user: USER,
+      isAdmin: IS_ADMIN
+    })
+  },
   beforeMount () {
-    console.log('before mount')
     this.getUser()
   },
   methods: {
     ...mapActions({
-      getUser: GET_USER
+      getUser: GET_USER,
+      showSnackbar: SHOW_SNACKBAR
     }),
-    test: () => {
-      console.log('test')
-      send('test')
+    ...mapMutations(SECURITY_NAMESPACE, {
+      logout: LOGOUT
+    }),
+    ...mapMutations({
+      showSnackbar: SHOW_SNACKBAR
+    }),
+    logoutClicked () {
+      axios.post('logout').then(response => {
+        this.logout()
+        this.$router.push({ name: LOGIN })
+      }).catch(() => {
+        this.showSnackbar({type: 'error', text: 'Logout failed'})
+      })
+    },
+    adminClicked () {
+      this.showSnackbar({type: 'warning', text: 'No admin stuff yet'})
     }
   }
 }

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { GET_USER,
   USER,
+  IS_ADMIN,
   CONNECTED,
   DISCONNECTED,
   CONNECTING,
@@ -45,6 +46,10 @@ const actions = {
 const getters = {
   [USER]: (state) => {
     return state.user
+  },
+  [IS_ADMIN]: (state) => {
+    if (!state.user) { return false }
+    return !!state.user.roles.find(ele => ele === 'ROLE_ADMIN')
   },
   [CONNECTION_STATUS]: (state) => {
     return state.connectionStatus
