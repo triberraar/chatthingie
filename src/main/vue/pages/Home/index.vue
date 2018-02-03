@@ -33,6 +33,26 @@
           v-list-tile(@click="logoutClicked")
             v-icon lock_open
             v-list-tile-title.pl-1 Logout
+    v-content()
+      
+            v-card()
+              v-toolbar
+                v-toolbar-title Room name
+                v-spacer
+                v-icon perm_identity
+              v-card-text(style="height: 70vh")
+                div(class="messages" style="height:65vh; overflow-y: scroll" id="messageBox")
+                  div(class="messages"  v-for="(m, index) in messages")
+                    div.subheading() Jef (xxx)
+                    span says something {{index}} blaatblaatblaatblaatblaatblaatblaatblaa tblaatblaatblaatblaatb laatblaatblaatblaatblaa tblaatblaatblaatblaatblaatblaatblaatbla atblaatblaatblaatblaatblaatblaat
+              v-divider
+              v-card-actions
+                v-layout
+                  v-flex(xs12)
+                    v-form(@submit.prevent="sendClicked")
+                      v-text-field(placeholder="Message..." 
+                        single-line append-icon="send"
+                        :append-icon-cb="sendClicked")
 </template>
 
 <script>
@@ -44,7 +64,8 @@ import { GET_USER,
   ROOMS,
   JOIN_ROOM,
   ROOM,
-  CONNECTION_STATUS
+  CONNECTION_STATUS,
+  RESET
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
@@ -58,7 +79,8 @@ export default {
   },
   data () {
     return {
-      drawer: null
+      drawer: null,
+      messages: ['sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf']
     }
   },
   computed: {
@@ -73,7 +95,7 @@ export default {
       if (this.user) { return this.user.username }
       return ''
     },
-    connectionStatusStyle: function() {
+    connectionStatusStyle: function () {
       if (this.connectionStatus === 'connected') {
         return { animated: true, flash: true, infinite: false }
       } else if (this.connectionStatus === 'connecting') {
@@ -93,6 +115,7 @@ export default {
     }
   },
   beforeMount () {
+    this.reset()
     this.getUser()
     this.getRooms()
   },
@@ -107,7 +130,8 @@ export default {
       logout: LOGOUT
     }),
     ...mapMutations({
-      showSnackbar: SHOW_SNACKBAR
+      showSnackbar: SHOW_SNACKBAR,
+      reset: RESET
     }),
     logoutClicked () {
       axios.post('logout').then(response => {
@@ -124,9 +148,18 @@ export default {
       this.joinRoom(id)
     },
     connectClicked () {
-      if(this.connectionStatus === 'disconnected') {
+      if (this.connectionStatus === 'disconnected') {
         connect(true)
       }
+    },
+    sendClicked () {
+      console.log('send')
+      this.messages.push('qqq')
+      this.$nextTick(this.scrollToEnd)
+    },
+    scrollToEnd () {
+      var container = this.$el.querySelector('#messageBox')
+      container.scrollTop = container.scrollHeight
     }
   }
 }

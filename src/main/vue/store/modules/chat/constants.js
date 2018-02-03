@@ -1,3 +1,4 @@
+export const RESET = 'reset'
 export const GET_USER = 'getUser'
 export const USER = 'user'
 export const IS_ADMIN = 'isAdmin'

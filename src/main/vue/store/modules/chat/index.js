@@ -10,7 +10,8 @@ import { GET_USER,
   ROOMS,
   JOIN_ROOM,
   ROOM,
-  UPDATE_ROOM
+  UPDATE_ROOM,
+  RESET
 } from './constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
@@ -22,6 +23,11 @@ const initial = {
 }
 
 const mutations = {
+  [RESET]: state => {
+    state.user = null
+    state.room = null
+    state.rooms = []
+  },
   [USER]: (state, user) => {
     state.user = user
   },

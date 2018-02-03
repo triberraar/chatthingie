@@ -19,11 +19,18 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
   }
 
   @Synchronized fun userWebSocketClosed(webSocketSessionId: String) {
+    val userSession = userSessions.find { it.webSocketSessionId == webSocketSessionId }
+    if(userSession != null && userSession.roomId != null) {
+      leaveRoom(userSession.userId, userSession.httpSessionId, userSession.roomId!!)
+    }
     userSessions.removeIf { it.webSocketSessionId == webSocketSessionId }
   }
 
   @Synchronized fun userSessionClosed(httpSessionId: String) {
     val userSession = userSessions.find { it.httpSessionId == httpSessionId }
+    if(userSession != null && userSession.roomId != null) {
+      leaveRoom(userSession.userId, userSession.httpSessionId, userSession.roomId!!)
+    }
     if(userSession != null) {
       userSession.webSocketSession.close()
     }
@@ -37,7 +44,9 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
         val userIds = userSessions.filter { it.roomId == previousRoom && httpSessionId != it.httpSessionId }.map { it.userId }
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
         val right = userRepository.getById(it.userId).rights.find { it.room.id == previousRoom }!!
-        it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+        if(it.webSocketSession.isOpen) {
+          it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+        }
       }
     }
     val userSession = userSessions.find { it.httpSessionId == httpSessionId }
@@ -57,7 +66,9 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
         val userIds = usersInRoom(currentRoom)
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
         val right = userRepository.getById(it.userId).rights.find { it.room.id == currentRoom }!!
-        it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+        if(it.webSocketSession.isOpen) {
+          it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+        }
       }
     }
   }
