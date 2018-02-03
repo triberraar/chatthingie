@@ -55,14 +55,16 @@ export const connect = function (force) {
   }
 
   socket.onclose = function (event) {
-    store.commit(DISCONNECTED)
+    if (event.code === 1000) {
+      store.commit(DISCONNECTED)
+    }
     console.log(`on close ${event}`)
   }
 
   socket.onerror = function (event) {
     console.log(`on error ${event}`)
     reconnectTimeout = setTimeout(function () {
-      connect()
+      connect(false)
     }, reconnect * reconnectDelay)
   }
 }

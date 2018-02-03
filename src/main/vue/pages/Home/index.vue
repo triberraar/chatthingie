@@ -23,6 +23,7 @@
         v-toolbar-side-icon(@click.stop="drawer = !drawer")
         | Chattingie
       v-spacer
+      v-icon(:color="connectionStatusColor" v-bind:class="connectionStatusStyle" @click="connectClicked") flash_on
       v-menu(offset-y)
         v-btn(slot="activator") {{username}}
         v-list
@@ -42,12 +43,14 @@ import { GET_USER,
   GET_ROOMS,
   ROOMS,
   JOIN_ROOM,
-  ROOM
+  ROOM,
+  CONNECTION_STATUS
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
 import { LOGIN } from '@/router/constants'
 import axios from 'axios'
+import { connect } from '@/ws'
 
 export default {
   name: 'home',
@@ -63,11 +66,30 @@ export default {
       user: USER,
       isAdmin: IS_ADMIN,
       rooms: ROOMS,
-      currentRoom: ROOM
+      currentRoom: ROOM,
+      connectionStatus: CONNECTION_STATUS
     }),
     username () {
       if (this.user) { return this.user.username }
       return ''
+    },
+    connectionStatusStyle: function() {
+      if (this.connectionStatus === 'connected') {
+        return { animated: true, flash: true, infinite: false }
+      } else if (this.connectionStatus === 'connecting') {
+        return { animated: true, flash: true, infinite: true }
+      } else if (this.connectionStatus === 'disconnected') {
+        return { animated: true, flash: true, infinite: false }
+      }
+    },
+    connectionStatusColor: function () {
+      if (this.connectionStatus === 'connected') {
+        return 'green'
+      } else if (this.connectionStatus === 'connecting') {
+        return 'orange'
+      } else if (this.connectionStatus === 'disconnected') {
+        return 'red'
+      }
     }
   },
   beforeMount () {
@@ -100,6 +122,11 @@ export default {
     },
     joinRoomClicked (id) {
       this.joinRoom(id)
+    },
+    connectClicked () {
+      if(this.connectionStatus === 'disconnected') {
+        connect(true)
+      }
     }
   }
 }
