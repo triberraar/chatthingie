@@ -1,7 +1,6 @@
 package be.tribersoft.chatthingie.config
 
 import be.tribersoft.chatthingie.domain.UserRepository
-import be.tribersoft.chatthingie.ws.UserSessionsState
 import javafx.application.Application
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean

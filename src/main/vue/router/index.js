@@ -5,7 +5,6 @@ import Home from '@/pages/Home'
 import store from '@/store'
 import { LOGIN, HOME } from './constants'
 import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
-import { NAMESPACE as BOOTSTRAP_NAMESPACE, BOOTSTRAP } from '@/store/modules/bootstrap/constants'
 import { connect } from '@/ws'
 
 Vue.use(Router)
@@ -37,7 +36,6 @@ router.beforeEach((to, from, next) => {
   console.log('router')
   if (to.name === LOGIN) {
     if (store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
-      store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
       connect(true)
       return next({ name: HOME })
     } else {
@@ -56,7 +54,6 @@ router.beforeEach((to, from, next) => {
     }
   }
   connect(true)
-  store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
   return next()
 })
 

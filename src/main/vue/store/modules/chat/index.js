@@ -5,14 +5,16 @@ import { GET_USER,
   CONNECTED,
   DISCONNECTED,
   CONNECTING,
-  CONNECTION_STATUS
+  CONNECTION_STATUS,
+  GET_ROOMS,
+  ROOMS
 } from './constants'
-import { BOOTSTRAP } from '@/store/modules/bootstrap/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
 const initial = {
   user: null,
-  connectionStatus: 'disconnected'
+  connectionStatus: 'disconnected',
+  rooms: []
 }
 
 const mutations = {
@@ -27,6 +29,9 @@ const mutations = {
   },
   [DISCONNECTED]: (state) => {
     state.connectionStatus = 'disconnected'
+  },
+  [ROOMS]: (state, rooms) => {
+    state.rooms = rooms
   }
 }
 
@@ -38,8 +43,12 @@ const actions = {
       commit(SHOW_SNACKBAR, {type: 'error', text: 'Could not retrieve user'})
     })
   },
-  [BOOTSTRAP]: () => {
-
+  [GET_ROOMS]: ({commit}) => {
+    axios.get('rooms/me').then((response) => {
+      commit(ROOMS, response.data)
+    }).catch(() => {
+      commit(SHOW_SNACKBAR, {type: 'error', text: 'Could not retrieve rooms'})
+    })
   }
 }
 
@@ -53,6 +62,9 @@ const getters = {
   },
   [CONNECTION_STATUS]: (state) => {
     return state.connectionStatus
+  },
+  [ROOMS]: (state) => {
+    return state.rooms
   }
 }
 

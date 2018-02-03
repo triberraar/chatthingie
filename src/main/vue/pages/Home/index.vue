@@ -5,19 +5,24 @@
       v-model="drawer"
       app
       dark)
-      v-list(dens)
-        v-list-tile
+      v-list
+        v-list-tile(@click="getRooms")
           v-list-tile-action
             v-icon refresh
           v-list-tile-title Refresh
       v-divider
+      v-list(dense)
+        v-list-tile(@click="joinRoomClicked" v-for="room in rooms" :key="room.id")
+          v-list-tile-content
+            v-list-tile-title {{room.name}}
+          v-list-action {{room.users.length}}
     v-toolbar(dense fixed clipped-left app)
       v-toolbar-title
         v-toolbar-side-icon(@click.stop="drawer = !drawer")
         | Chattingie
       v-spacer
       v-menu(offset-y)
-        v-btn(slot="activator") {{user.username}}
+        v-btn(slot="activator") {{username}}
         v-list
           v-list-tile(v-if="isAdmin" @click="adminClicked")
             v-icon accessibility
@@ -29,7 +34,12 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { GET_USER, USER, IS_ADMIN } from '@/store/modules/chat/constants'
+import { GET_USER,
+  USER,
+  IS_ADMIN,
+  GET_ROOMS,
+  ROOMS
+} from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
 import { LOGIN } from '@/router/constants'
@@ -47,15 +57,22 @@ export default {
   computed: {
     ...mapGetters({
       user: USER,
-      isAdmin: IS_ADMIN
-    })
+      isAdmin: IS_ADMIN,
+      rooms: ROOMS
+    }),
+    username () {
+      if (this.user) { return this.user.username }
+      return ''
+    }
   },
   beforeMount () {
     this.getUser()
+    this.getRooms()
   },
   methods: {
     ...mapActions({
       getUser: GET_USER,
+      getRooms: GET_ROOMS,
       showSnackbar: SHOW_SNACKBAR
     }),
     ...mapMutations(SECURITY_NAMESPACE, {
@@ -74,6 +91,9 @@ export default {
     },
     adminClicked () {
       this.showSnackbar({type: 'warning', text: 'No admin stuff yet'})
+    },
+    joinRoomClicked () {
+
     }
   }
 }

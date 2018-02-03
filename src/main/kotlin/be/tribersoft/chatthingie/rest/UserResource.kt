@@ -21,7 +21,7 @@ class UserResource {
   }
 }
 
-data class RightJson(val room: String, val write: Boolean = false)
+data class RightJson(val roomId: UUID, val room: String, val write: Boolean = false)
 data class UserJson(val id: UUID, val username: String, val rights: List<RightJson> = listOf(), val roles: List<String> = listOf())
 
 fun User.toJson() = UserJson(id,
@@ -29,4 +29,4 @@ fun User.toJson() = UserJson(id,
     rights.map { it.toJson() },
     roles.map { it })
 
-fun Right.toJson() = RightJson(room, write)
+fun Right.toJson() = RightJson(room.id, room.name, write)
