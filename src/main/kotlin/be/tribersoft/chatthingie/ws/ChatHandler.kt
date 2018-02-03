@@ -1,6 +1,7 @@
 package be.tribersoft.chatthingie.ws
 
 import be.tribersoft.chatthingie.domain.User
+import be.tribersoft.chatthingie.rest.RoomJson
 import be.tribersoft.chatthingie.state.UserSessionsState
 import org.springframework.context.ApplicationListener
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -22,10 +23,16 @@ class ChatHandler(private val userSessionsState: UserSessionsState): TextWebSock
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
       // http session id: session.handshakeHeaders["Cookie"][0].split('=')[1]
-      val httpSessionId = session.handshakeHeaders["Cookie"]!![0].split('=')[1]
-      val user = (session.principal as UsernamePasswordAuthenticationToken).principal as User
-      val websocketSessionId = session.id
-      userSessionsState.userWebSocketConnected(user.id, httpSessionId, websocketSessionId, session)
+      session.handshakeHeaders["Cookie"]!!.forEach { cookies ->
+        cookies.split(';')  .forEach { cookie ->
+          if(cookie.startsWith("JSESSIONID", true)) {
+            val httpSessionId = cookie.split('=')[1].trim()
+            val user = (session.principal as UsernamePasswordAuthenticationToken).principal as User
+            val websocketSessionId = session.id
+            userSessionsState.userWebSocketConnected(user.id, httpSessionId, websocketSessionId, session)
+          }
+        }
+      }
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus?) {
@@ -43,3 +50,10 @@ class SessionEndedListener(private val userSessionsState: UserSessionsState): Ap
     userSessionsState.userSessionClosed(event.id)
   }
 }
+
+object MESSAGE_TYPES {
+  val ROOM = "room"
+}
+
+sealed class Message(val type: String)
+data class RoomMessage(val room: RoomJson): Message(MESSAGE_TYPES.ROOM)

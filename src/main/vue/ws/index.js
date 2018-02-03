@@ -1,7 +1,8 @@
 import store from '@/store'
 import { CONNECTED,
   DISCONNECTED,
-  CONNECTING
+  CONNECTING,
+  UPDATE_ROOM
 } from '@/store/modules/chat/constants'
 
 const maxReconnect = 5
@@ -47,8 +48,10 @@ export const connect = function (force) {
   }
 
   socket.onmessage = function (event) {
-    console.log(`on message ${event.data}`)
-    console.log(event.data)
+    const message = JSON.parse(event.data)
+    if (message.type === 'room') {
+      store.commit(UPDATE_ROOM, message.room)
+    }
   }
 
   socket.onclose = function (event) {

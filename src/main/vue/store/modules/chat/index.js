@@ -7,14 +7,18 @@ import { GET_USER,
   CONNECTING,
   CONNECTION_STATUS,
   GET_ROOMS,
-  ROOMS
+  ROOMS,
+  JOIN_ROOM,
+  ROOM,
+  UPDATE_ROOM
 } from './constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
 const initial = {
   user: null,
   connectionStatus: 'disconnected',
-  rooms: []
+  rooms: [],
+  room: null
 }
 
 const mutations = {
@@ -32,6 +36,12 @@ const mutations = {
   },
   [ROOMS]: (state, rooms) => {
     state.rooms = rooms
+  },
+  [ROOM]: (state, room) => {
+    state.room = room
+  },
+  [UPDATE_ROOM]: (state, room) => {
+    state.rooms = state.rooms.map(it => it.id === room.id ? {...it, ...room} : it)
   }
 }
 
@@ -49,6 +59,15 @@ const actions = {
     }).catch(() => {
       commit(SHOW_SNACKBAR, {type: 'error', text: 'Could not retrieve rooms'})
     })
+  },
+  [JOIN_ROOM]: ({commit, state}, roomId) => {
+    const previousRoomId = state.room && state.room.id
+    axios.put('rooms/join', {previousRoom: previousRoomId, currentRoom: roomId}).then((response) => {
+      commit(ROOM, response.data)
+      commit(UPDATE_ROOM, response.data)
+    }).catch(() => {
+      commit(SHOW_SNACKBAR, {type: 'error', text: 'Can\'t join room'})
+    })
   }
 }
 
@@ -65,6 +84,9 @@ const getters = {
   },
   [ROOMS]: (state) => {
     return state.rooms
+  },
+  [ROOM]: state => {
+    return state.room
   }
 }
 

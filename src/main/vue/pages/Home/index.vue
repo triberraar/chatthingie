@@ -12,10 +12,12 @@
           v-list-tile-title Refresh
       v-divider
       v-list(dense)
-        v-list-tile(@click="joinRoomClicked" v-for="room in rooms" :key="room.id")
+        v-list-tile(@click="joinRoomClicked(room.id)" v-for="room in rooms" :key="room.id")
+          v-list-tile-action(v-if="currentRoom && room.id === currentRoom.id")
+            v-icon chat
           v-list-tile-content
             v-list-tile-title {{room.name}}
-          v-list-action {{room.users.length}}
+          v-list-tile-action {{room.users.length}}
     v-toolbar(dense fixed clipped-left app)
       v-toolbar-title
         v-toolbar-side-icon(@click.stop="drawer = !drawer")
@@ -38,7 +40,9 @@ import { GET_USER,
   USER,
   IS_ADMIN,
   GET_ROOMS,
-  ROOMS
+  ROOMS,
+  JOIN_ROOM,
+  ROOM
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
@@ -58,7 +62,8 @@ export default {
     ...mapGetters({
       user: USER,
       isAdmin: IS_ADMIN,
-      rooms: ROOMS
+      rooms: ROOMS,
+      currentRoom: ROOM
     }),
     username () {
       if (this.user) { return this.user.username }
@@ -73,7 +78,8 @@ export default {
     ...mapActions({
       getUser: GET_USER,
       getRooms: GET_ROOMS,
-      showSnackbar: SHOW_SNACKBAR
+      showSnackbar: SHOW_SNACKBAR,
+      joinRoom: JOIN_ROOM
     }),
     ...mapMutations(SECURITY_NAMESPACE, {
       logout: LOGOUT
@@ -92,8 +98,8 @@ export default {
     adminClicked () {
       this.showSnackbar({type: 'warning', text: 'No admin stuff yet'})
     },
-    joinRoomClicked () {
-
+    joinRoomClicked (id) {
+      this.joinRoom(id)
     }
   }
 }
