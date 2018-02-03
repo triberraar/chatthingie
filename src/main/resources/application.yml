@@ -1,6 +1,10 @@
-logging:
-  level:
-    root: debug
+#logging:
+#  level:
+#    root: debug
+server:
+  servlet:
+    session:
+      timeout: 60
 ---
 spring:
   profiles: dev

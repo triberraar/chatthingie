@@ -1,10 +1,14 @@
 package be.tribersoft.chatthingie.config
 
 import be.tribersoft.chatthingie.domain.UserRepository
+import be.tribersoft.chatthingie.ws.UserSessionsState
+import javafx.application.Application
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -20,6 +24,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -56,24 +62,10 @@ class UserDetailsService(private val userRepository: UserRepository) {
 
 }
 
-@Component
-class SessionEndedListener: ApplicationListener<SessionDestroyedEvent> {
-  override fun onApplicationEvent(event: SessionDestroyedEvent?) {
-    // the session has ended so we should clean up websockets if we have any.
-    println("session endded ${event}")
-  }
-}
-
-@Component
-class SessionStartedListener: ApplicationListener<SessionCreationEvent> {
-  override fun onApplicationEvent(event: SessionCreationEvent) {
-    println("session started ${(event as HttpSessionCreatedEvent).session.id}")
-  }
-}
-
 class Http401AuthenticationEntryPoint: AuthenticationEntryPoint {
   override fun commence(req: HttpServletRequest?, resp: HttpServletResponse, auth: AuthenticationException) {
     resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, auth.message)
   }
-
 }
+
+

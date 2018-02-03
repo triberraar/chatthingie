@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
   if (to.name === LOGIN) {
     if (store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
       store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
-      connect()
+      connect(true)
       return next({ name: HOME })
     } else {
       return next()
@@ -55,7 +55,7 @@ router.beforeEach((to, from, next) => {
       return next({ name: LOGIN })
     }
   }
-  connect()
+  connect(true)
   store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
   return next()
 })

@@ -8,19 +8,21 @@ const maxReconnect = 5
 const reconnectDelay = 500
 var reconnect = 0
 var socket = null
-var connecting = false
+var reconnectTimeout = null
 
-export const connect = function () {
+export const connect = function (force) {
   disconnect()
+  if (force) {
+    reconnect = 0
+  }
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout)
+  }
   if (reconnect > maxReconnect) {
     store.commit(DISCONNECTED)
     return
   }
-  if (connecting) {
-    return
-  }
   store.commit(CONNECTING)
-  connecting = true
   reconnect = reconnect + 1
   console.log('connecting')
   const loc = window.location
@@ -40,7 +42,6 @@ export const connect = function () {
 
   socket.onopen = function (event) {
     reconnect = 0
-    connecting = false
     store.commit(CONNECTED)
     console.log(`connected ${event}`)
   }
@@ -57,7 +58,7 @@ export const connect = function () {
 
   socket.onerror = function (event) {
     console.log(`on error ${event}`)
-    setTimeout(function () {
+    reconnectTimeout = setTimeout(function () {
       connect()
     }, reconnect * reconnectDelay)
   }
