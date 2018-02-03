@@ -2,14 +2,16 @@ import axios from 'axios'
 import { GET_USER,
   USER,
   CONNECTED,
-  DISCONNECTED
+  DISCONNECTED,
+  CONNECTING,
+  CONNECTION_STATUS
 } from './constants'
 import { BOOTSTRAP } from '@/store/modules/bootstrap/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
 const initial = {
   user: null,
-  connected: false
+  connectionStatus: 'disconnected'
 }
 
 const mutations = {
@@ -17,10 +19,13 @@ const mutations = {
     state.user = user
   },
   [CONNECTED]: (state) => {
-    state.connected = true
+    state.connectionStatus = 'connected'
+  },
+  [CONNECTING]: (state) => {
+    state.connectionStatus = 'connecting'
   },
   [DISCONNECTED]: (state) => {
-    state.connected = false
+    state.connectionStatus = 'disconnected'
   }
 }
 
@@ -41,8 +46,8 @@ const getters = {
   [USER]: (state) => {
     return state.user
   },
-  [CONNECTED]: (state) => {
-    return state.connected
+  [CONNECTION_STATUS]: (state) => {
+    return state.connectionStatus
   }
 }
 

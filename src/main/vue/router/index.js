@@ -6,6 +6,7 @@ import store from '@/store'
 import { LOGIN, HOME } from './constants'
 import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
 import { NAMESPACE as BOOTSTRAP_NAMESPACE, BOOTSTRAP } from '@/store/modules/bootstrap/constants'
+import { connect } from '@/ws'
 
 Vue.use(Router)
 
@@ -33,9 +34,11 @@ const router = new Router({
 // use by putting requiresAuth: true if you want the user to be logged in for this route
 // use by putting requiredRole: <role> if you want the user to have a specific role for this route
 router.beforeEach((to, from, next) => {
+  console.log('router')
   if (to.name === LOGIN) {
     if (store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
       store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
+      connect()
       return next({ name: HOME })
     } else {
       return next()
@@ -52,6 +55,7 @@ router.beforeEach((to, from, next) => {
       return next({ name: LOGIN })
     }
   }
+  connect()
   store.dispatch(BOOTSTRAP_NAMESPACE + '/' + BOOTSTRAP)
   return next()
 })
