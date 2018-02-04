@@ -2,7 +2,7 @@
   span
     v-navigation-drawer(fixed 
       :clipped="$vuetify.breakpoint.width > 1264"
-      v-model="drawer"
+      v-model="roomDrawer"
       app
       dark)
       v-list
@@ -18,9 +18,18 @@
           v-list-tile-content
             v-list-tile-title {{room.name}}
           v-list-tile-action {{room.users.length}}
-    v-toolbar(dense fixed clipped-left app)
+    v-navigation-drawer(fixed
+      :clipped="$vuetify.breakpoint.width > 1264"
+      v-model="peopleDrawer"
+      right
+      app)
+      v-list(dense v-if="currentRoom")
+        v-list-tile(v-for="user in currentRoom.users" :key="user.id")
+          v-list-tile-content
+            v-list-tile-title {{user.username}}
+    v-toolbar(dense fixed clipped-left clipped-right app)
       v-toolbar-title
-        v-toolbar-side-icon(@click.stop="drawer = !drawer")
+        v-toolbar-side-icon(@click.stop="roomDrawer = !roomDrawer")
         | Chattingie
       v-spacer
       v-icon(:color="connectionStatusColor" v-bind:class="connectionStatusStyle" @click="connectClicked") flash_on
@@ -38,9 +47,9 @@
         v-toolbar
           v-toolbar-title {{currentRoom.name}}
           v-spacer
-          v-btn(icon)
+          v-btn(icon @click.stop="peopleDrawer = !peopleDrawer")
             v-badge(left)
-              span(slot="badge") {{numberOfUsers()}}
+              span(slot="badge") {{currentRoom.users.length}}
               v-icon perm_identity
           
         v-card-text(style="height: 70vh")
@@ -82,7 +91,8 @@ export default {
   },
   data () {
     return {
-      drawer: null,
+      roomDrawer: null,
+      peopleDrawer: false,
       messages: ['sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf']
     }
   },
@@ -163,10 +173,6 @@ export default {
     scrollToEnd () {
       var container = this.$el.querySelector('#messageBox')
       container.scrollTop = container.scrollHeight
-    },
-    numberOfUsers: function() {
-      console.log(`numberOfUsers ${this.currentRoom.users.length}`)
-      return this.currentRoom.users.length
     }
   }
 }
