@@ -1,27 +1,26 @@
 # chatthingie
 
-> chat thingie
+> It is, duh, a chat thingie
 
-## Build Setup
+Build using kotlin and spring boot in the backend and es6 and vue in the the front
 
-``` bash
-# install dependencies
-npm install
+## Needed tools
+Have some editor with kotlin support (intellij/eclipse) and a decent javascript editor with some plugins like linter support (visual code)
 
-# serve with hot reload at localhost:8080
-npm run dev
+Backend is build with maven (`mvn`) and the front with yarn (`yarn`)
 
-# build for production with minification
-npm run build
+## Build
+There are two type of builds dev and prod.
+First start by installing all javascript dependencies (aka downloading half the internet) by runnin `yarn`
 
-# build for production and view the bundle analyzer report
-npm run build --report
+### Dev build
+Run the `DevProxyMode` main class and then run `yarn run dev`. All connections (http/ws) will now be proxied through webpack. So you get the fun of hot reload and all that, but still use the proper api calls in the back. The frontend server will run on port `8080` and the backend on port `1234`
 
-# run unit tests
-npm run unit
+### Prod build
+First build the frontend `yarn run build`. This will produce a minified and all that file and other needed files (css, index.html,...) in the resources directory so that the spring boot app can server it. To build an executable jar run `mvn clean install`. Tada you have a jar you can deploy
 
-# run all tests
-npm test
-```
+## Tests
+As good as none, and i am pretty sure the js one doesn't work. Feel free to mess with webpack to get it to work :D.
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## Deploy
+Run the jar and server ll boot. For added safety, please run over https/wss.
