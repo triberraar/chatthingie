@@ -194,7 +194,7 @@ export default {
     }
   },
   watch: {
-    messages: function(n, o) {
+    messages: function () {
       this.$nextTick(this.scrollToEnd)
     }
   }

@@ -23,20 +23,16 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
   }
 
   @Synchronized fun userWebSocketClosed(webSocketSessionId: String) {
-    val userSession = userSessions.find { it.webSocketSessionId == webSocketSessionId }
-    if(userSession != null && userSession.roomId != null) {
-      leaveRoom(userSession.userId, userSession.httpSessionId, userSession.roomId!!)
-    }
+    val userSessionForSession = userSessions.filter { it.webSocketSessionId == webSocketSessionId && it.roomId != null}
+    userSessionForSession.forEach { leaveRoom(it.userId, it.httpSessionId, it.roomId!!) }
     userSessions.removeIf { it.webSocketSessionId == webSocketSessionId }
   }
 
   @Synchronized fun userSessionClosed(httpSessionId: String) {
-    val userSession = userSessions.find { it.httpSessionId == httpSessionId }
-    if(userSession != null && userSession.roomId != null) {
-      leaveRoom(userSession.userId, userSession.httpSessionId, userSession.roomId!!)
-    }
-    if(userSession != null) {
-      userSession.webSocketSession.close()
+    val userSessionForSession = userSessions.filter { it.httpSessionId == httpSessionId }
+    userSessionForSession.forEach {
+      if(it.roomId != null) leaveRoom(it.userId, it.httpSessionId, it.roomId!!)
+      it.webSocketSession.close()
     }
   }
 
@@ -57,17 +53,13 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
         }
       }
     }
-    val userSession = userSessions.find { it.httpSessionId == httpSessionId }
-    if(userSession != null) {
-      userSession.roomId = null
-    }
+    val userSessionsForHttpSession = userSessions.filter { it.httpSessionId == httpSessionId }
+    userSessionsForHttpSession.forEach { it.roomId = null }
   }
 
   @Synchronized fun joinRoom(userId: UUID, httpSessionId: String, currentRoom: UUID) {
-    val userSession = userSessions.find { it.httpSessionId == httpSessionId }
-    if(userSession != null) {
-      userSession.roomId = currentRoom
-    }
+    val userSessionsForHttpSession = userSessions.filter { it.httpSessionId == httpSessionId }
+    userSessionsForHttpSession.forEach { it.roomId = currentRoom }
 
     userSessions.forEach {
       if(userRepository.getById(it.userId).rights.find { it.room.id == currentRoom } != null) {
@@ -86,6 +78,7 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
   }
 
   @Synchronized fun getUserByWebsocketSession(webSocketSessionId: String) = userSessions.find { it.webSocketSessionId == webSocketSessionId }
+
   fun forwardChat(message: ChatContent) {
     userSessions.filter { it.roomId == message.roomId }.forEach {
       if(it.webSocketSession.isOpen) {

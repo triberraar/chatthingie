@@ -79,5 +79,8 @@ export const disconnect = function () {
 }
 
 export const send = function (message) {
+  if (socket.readyState === socket.CLOSING || socket.readyState === socket.CLOSED) {
+    connect(true)
+  }
   socket.send(JSON.stringify(message))
 }
