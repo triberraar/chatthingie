@@ -54,9 +54,11 @@
           
         v-card-text(style="height: 70vh")
           div(class="messages" style="height:65vh; overflow-y: scroll" id="messageBox")
-            div(class="messages"  v-for="(m, index) in messages")
-              div.subheading() Jef (xxx)
-              span says something {{index}} blaatblaatblaatblaatblaatblaatblaatblaa tblaatblaatblaatblaatb laatblaatblaatblaatblaa tblaatblaatblaatblaatblaatblaatblaatbla atblaatblaatblaatblaatblaatblaat
+            div(class="messages"  v-for="(message, index) in messages" :key="index")
+              div
+                span.subheading {{message.username}} 
+                span.grey--text.text--darken-2 {{formatTimeStamp(message.timestamp)}}:
+              span {{message.message}}
         v-divider
         v-card-actions
           v-layout
@@ -64,7 +66,9 @@
               v-form(@submit.prevent="sendClicked")
                 v-text-field(placeholder="Message..." 
                   single-line append-icon="send"
-                  :append-icon-cb="sendClicked")
+                  :append-icon-cb="sendClicked"
+                  :disabled="!canChat"
+                  v-model="message")
 </template>
 
 <script>
@@ -76,14 +80,17 @@ import { GET_USER,
   ROOMS,
   JOIN_ROOM,
   ROOM,
+  CAN_CHAT_IN_ROOM,
   CONNECTION_STATUS,
-  RESET
+  RESET,
+  MESSAGES
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
 import { LOGIN } from '@/router/constants'
 import axios from 'axios'
-import { connect } from '@/ws'
+import { connect, send } from '@/ws'
+import moment from 'moment'
 
 export default {
   name: 'home',
@@ -93,7 +100,7 @@ export default {
     return {
       roomDrawer: null,
       peopleDrawer: false,
-      messages: ['sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf', 'sdf']
+      message: null
     }
   },
   computed: {
@@ -102,7 +109,9 @@ export default {
       isAdmin: IS_ADMIN,
       rooms: ROOMS,
       currentRoom: ROOM,
-      connectionStatus: CONNECTION_STATUS
+      connectionStatus: CONNECTION_STATUS,
+      canChat: CAN_CHAT_IN_ROOM,
+      messages: MESSAGES
     }),
     username () {
       if (this.user) { return this.user.username }
@@ -159,6 +168,7 @@ export default {
     },
     joinRoomClicked (id) {
       this.joinRoom(id)
+      this.message = null
     },
     connectClicked () {
       if (this.connectionStatus === 'disconnected') {
@@ -166,13 +176,19 @@ export default {
       }
     },
     sendClicked () {
-      console.log('send')
-      this.messages.push('qqq')
-      this.$nextTick(this.scrollToEnd)
+      if (this.message != null) {
+        const chatMessage = {type: 'chat', message: {message: this.message, userId: this.user.id, roomId: this.currentRoom.id}}
+        send(chatMessage)
+        this.$nextTick(this.scrollToEnd)
+        this.message = null
+      }
     },
     scrollToEnd () {
       var container = this.$el.querySelector('#messageBox')
       container.scrollTop = container.scrollHeight
+    },
+    formatTimeStamp (date) {
+      return moment(date).format('DD/MM/YYYY HH:mm:ss')
     }
   }
 }

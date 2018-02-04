@@ -11,7 +11,10 @@ import { GET_USER,
   JOIN_ROOM,
   ROOM,
   UPDATE_ROOM,
-  RESET
+  CAN_CHAT_IN_ROOM,
+  RESET,
+  CHAT_MESSAGE,
+  MESSAGES
 } from './constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 
@@ -19,7 +22,8 @@ const initial = {
   user: null,
   connectionStatus: 'disconnected',
   rooms: [],
-  room: null
+  room: null,
+  messages: []
 }
 
 const mutations = {
@@ -27,6 +31,7 @@ const mutations = {
     state.user = null
     state.room = null
     state.rooms = []
+    state.messages = []
   },
   [USER]: (state, user) => {
     state.user = user
@@ -45,11 +50,17 @@ const mutations = {
   },
   [ROOM]: (state, room) => {
     state.room = room
+    state.messages = []
   },
   [UPDATE_ROOM]: (state, room) => {
     state.rooms = state.rooms.map(it => it.id === room.id ? {...it, ...room} : it)
     if (state.room && state.room.id === room.id) {
       state.room = room
+    }
+  },
+  [CHAT_MESSAGE]: (state, message) => {
+    if (state.room.id === message.roomId) {
+      state.messages.push(message)
     }
   }
 }
@@ -96,6 +107,12 @@ const getters = {
   },
   [ROOM]: state => {
     return state.room
+  },
+  [CAN_CHAT_IN_ROOM]: state => {
+    return state.room && state.room.write
+  },
+  [MESSAGES]: state => {
+    return state.messages
   }
 }
 

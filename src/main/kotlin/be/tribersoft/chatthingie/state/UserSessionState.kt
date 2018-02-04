@@ -3,6 +3,8 @@ package be.tribersoft.chatthingie.state
 import be.tribersoft.chatthingie.domain.UserRepository
 import be.tribersoft.chatthingie.rest.toRoomJson
 import be.tribersoft.chatthingie.rest.toRoomUserJson
+import be.tribersoft.chatthingie.ws.ChatContent
+import be.tribersoft.chatthingie.ws.ChatMessage
 import be.tribersoft.chatthingie.ws.RoomMessage
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KLogging
@@ -78,6 +80,19 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
           } catch (e: Throwable) {
             logger.warn { "Sending message to WS failed $e" }
           }
+        }
+      }
+    }
+  }
+
+  @Synchronized fun getUserByWebsocketSession(webSocketSessionId: String) = userSessions.find { it.webSocketSessionId == webSocketSessionId }
+  fun forwardChat(message: ChatContent) {
+    userSessions.filter { it.roomId == message.roomId }.forEach {
+      if(it.webSocketSession.isOpen) {
+        try {
+          it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(ChatMessage(message))))
+        } catch (e: Throwable) {
+          logger.warn { "Sending message to WS failed $e" }
         }
       }
     }
