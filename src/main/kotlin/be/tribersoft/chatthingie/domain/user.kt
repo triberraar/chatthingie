@@ -27,9 +27,6 @@ data class SecurityAuthority(val role: String): GrantedAuthority {
         return role
     }
 }
-
-data class Room(val name: String, val id: UUID = UUID.randomUUID())
-
 data class Right(val room: Room, val write: Boolean)
 
 @Component
@@ -48,11 +45,6 @@ class UserRepository(private val users: Set<User> = initialUsers()) {
         return if(user != null) user else throw BadCredentialsException("invalid login")
     }
 
-}
-
-@Component
-class RoomRepository() {
-    fun all() = setOf("room1", "room2")
 }
 
 fun initialUsers(): Set<User> {
@@ -83,7 +75,3 @@ fun initialUsers(): Set<User> {
             roles = setOf("ROLE_USER"))
     )
 }
-
-val room1 = Room("room1")
-val room2 = Room("room2")
-val room3 = Room("room3")

@@ -7,7 +7,6 @@ import be.tribersoft.chatthingie.ws.ChatContent
 import be.tribersoft.chatthingie.ws.ChatMessage
 import be.tribersoft.chatthingie.ws.RoomMessage
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import mu.KLogging
@@ -15,8 +14,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import java.util.*
-import kotlin.collections.ArrayList
 
+/*
+  This one holds the in memory state and mapping of all http sessions to websocket sessions to users to rooms.
+  Probably can use some love to extract stuff in services
+ */
 @Component
 class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),
                         private val objectMapper: ObjectMapper,

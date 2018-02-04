@@ -34,7 +34,6 @@ class ChatHandler(private val userSessionsState: UserSessionsState, private val 
   }
 
   override fun afterConnectionEstablished(session: WebSocketSession) {
-    // http session id: session.handshakeHeaders["Cookie"][0].split('=')[1]
     session.handshakeHeaders["Cookie"]!!.forEach { cookies ->
       cookies.split(';').forEach { cookie ->
         if (cookie.startsWith("JSESSIONID", true)) {
@@ -48,8 +47,6 @@ class ChatHandler(private val userSessionsState: UserSessionsState, private val 
   }
 
   override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus?) {
-    val httpSessionId = session.handshakeHeaders["Cookie"]!![0].split('=')[1]
-    val user = (session.principal as UsernamePasswordAuthenticationToken).principal as User
     val websocketSessionId = session.id
     userSessionsState.userWebSocketClosed(websocketSessionId)
   }
