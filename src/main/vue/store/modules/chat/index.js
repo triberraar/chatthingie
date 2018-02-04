@@ -48,6 +48,9 @@ const mutations = {
   },
   [UPDATE_ROOM]: (state, room) => {
     state.rooms = state.rooms.map(it => it.id === room.id ? {...it, ...room} : it)
+    if (state.room && state.room.id === room.id) {
+      state.room = room
+    }
   }
 }
 

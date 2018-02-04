@@ -4,6 +4,7 @@ import be.tribersoft.chatthingie.domain.Right
 import be.tribersoft.chatthingie.domain.User
 import be.tribersoft.chatthingie.domain.UserRepository
 import be.tribersoft.chatthingie.state.UserSessionsState
+import mu.KLogging
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpSession
 @RestController
 @RequestMapping(path = arrayOf("/rooms"))
 class RoomResource(private val userRepository: UserRepository, private val userSessionsState: UserSessionsState) {
+  companion object: KLogging()
 
   @GetMapping(path = arrayOf("/me"), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
   fun mine(principal: Principal): List<RoomJson> {
@@ -31,6 +33,7 @@ class RoomResource(private val userRepository: UserRepository, private val userS
   fun joinRoom(@RequestBody joinRoomJson: JoinRoomJson, principal: Principal, httpSession: HttpSession): RoomJson {
     val user = (principal as UsernamePasswordAuthenticationToken).principal as User
     if (user.rights.find { it.room.id == joinRoomJson.currentRoom } == null) {
+      logger.error { "User ${user.username} trying to join unpermitted room ${joinRoomJson.currentRoom}" }
       throw RuntimeException("Not allowed to join this room")
     }
 

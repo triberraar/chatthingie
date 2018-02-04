@@ -34,25 +34,28 @@
             v-icon lock_open
             v-list-tile-title.pl-1 Logout
     v-content()
-      
-            v-card()
-              v-toolbar
-                v-toolbar-title Room name
-                v-spacer
-                v-icon perm_identity
-              v-card-text(style="height: 70vh")
-                div(class="messages" style="height:65vh; overflow-y: scroll" id="messageBox")
-                  div(class="messages"  v-for="(m, index) in messages")
-                    div.subheading() Jef (xxx)
-                    span says something {{index}} blaatblaatblaatblaatblaatblaatblaatblaa tblaatblaatblaatblaatb laatblaatblaatblaatblaa tblaatblaatblaatblaatblaatblaatblaatbla atblaatblaatblaatblaatblaatblaat
-              v-divider
-              v-card-actions
-                v-layout
-                  v-flex(xs12)
-                    v-form(@submit.prevent="sendClicked")
-                      v-text-field(placeholder="Message..." 
-                        single-line append-icon="send"
-                        :append-icon-cb="sendClicked")
+      v-card(v-if="currentRoom")
+        v-toolbar
+          v-toolbar-title {{currentRoom.name}}
+          v-spacer
+          v-btn(icon)
+            v-badge(left)
+              span(slot="badge") {{numberOfUsers()}}
+              v-icon perm_identity
+          
+        v-card-text(style="height: 70vh")
+          div(class="messages" style="height:65vh; overflow-y: scroll" id="messageBox")
+            div(class="messages"  v-for="(m, index) in messages")
+              div.subheading() Jef (xxx)
+              span says something {{index}} blaatblaatblaatblaatblaatblaatblaatblaa tblaatblaatblaatblaatb laatblaatblaatblaatblaa tblaatblaatblaatblaatblaatblaatblaatbla atblaatblaatblaatblaatblaatblaat
+        v-divider
+        v-card-actions
+          v-layout
+            v-flex(xs12)
+              v-form(@submit.prevent="sendClicked")
+                v-text-field(placeholder="Message..." 
+                  single-line append-icon="send"
+                  :append-icon-cb="sendClicked")
 </template>
 
 <script>
@@ -160,6 +163,10 @@ export default {
     scrollToEnd () {
       var container = this.$el.querySelector('#messageBox')
       container.scrollTop = container.scrollHeight
+    },
+    numberOfUsers: function() {
+      console.log(`numberOfUsers ${this.currentRoom.users.length}`)
+      return this.currentRoom.users.length
     }
   }
 }

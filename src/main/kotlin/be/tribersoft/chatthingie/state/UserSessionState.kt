@@ -5,6 +5,7 @@ import be.tribersoft.chatthingie.rest.toRoomJson
 import be.tribersoft.chatthingie.rest.toRoomUserJson
 import be.tribersoft.chatthingie.ws.RoomMessage
 import com.fasterxml.jackson.databind.ObjectMapper
+import mu.KLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -13,6 +14,7 @@ import kotlin.collections.ArrayList
 
 @Component
 class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),  private val objectMapper: ObjectMapper, private val userRepository: UserRepository) {
+  companion object: KLogging()
 
   @Synchronized fun userWebSocketConnected(userId: UUID, httpSessionId: String, webSocketSessionId: String, webSocketSession: WebSocketSession) {
     userSessions.add(UserSession(userId, httpSessionId, webSocketSessionId, webSocketSession))
@@ -45,7 +47,11 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
         val right = userRepository.getById(it.userId).rights.find { it.room.id == previousRoom }!!
         if(it.webSocketSession.isOpen) {
-          it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+          try {
+            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+          } catch (e: Throwable) {
+            logger.warn { "Sending message to WS failed $e" }
+          }
         }
       }
     }
@@ -67,7 +73,11 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
         val right = userRepository.getById(it.userId).rights.find { it.room.id == currentRoom }!!
         if(it.webSocketSession.isOpen) {
-          it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+          try {
+            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+          } catch (e: Throwable) {
+            logger.warn { "Sending message to WS failed $e" }
+          }
         }
       }
     }
