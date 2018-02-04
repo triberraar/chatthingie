@@ -185,10 +185,17 @@ export default {
     },
     scrollToEnd () {
       var container = this.$el.querySelector('#messageBox')
-      container.scrollTop = container.scrollHeight
+      if (container) {
+        container.scrollTop = container.scrollHeight
+      }
     },
     formatTimeStamp (date) {
       return moment(date).format('DD/MM/YYYY HH:mm:ss')
+    }
+  },
+  watch: {
+    messages: function(n, o) {
+      this.$nextTick(this.scrollToEnd)
     }
   }
 }

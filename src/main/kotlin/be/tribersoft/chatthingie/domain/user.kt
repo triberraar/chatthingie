@@ -74,8 +74,8 @@ fun initialUsers(): Set<User> {
             ),
             roles = setOf("ROLE_USER")
     ),  User(
-            username = "user1",
-            password = "user1",
+            username = "user2",
+            password = "user2",
             rights = setOf(
                     Right(room1, true),
                     Right(room2, false)
