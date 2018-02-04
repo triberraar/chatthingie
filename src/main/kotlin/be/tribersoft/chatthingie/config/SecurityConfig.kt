@@ -38,6 +38,7 @@ class SecurityConfig(): WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/","/index.html","/static/js/*.js", "/static/css/*.css", "/static/*.png").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).clearAuthentication(true).logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)).permitAll()
           .and().exceptionHandling().authenticationEntryPoint(Http401AuthenticationEntryPoint())

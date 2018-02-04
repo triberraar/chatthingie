@@ -7,6 +7,9 @@ import be.tribersoft.chatthingie.ws.ChatContent
 import be.tribersoft.chatthingie.ws.ChatMessage
 import be.tribersoft.chatthingie.ws.RoomMessage
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.MeterRegistry
 import mu.KLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
@@ -15,7 +18,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @Component
-class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),  private val objectMapper: ObjectMapper, private val userRepository: UserRepository) {
+class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),
+                        private val objectMapper: ObjectMapper,
+                        private val userRepository: UserRepository) {
   companion object: KLogging()
 
   @Synchronized fun userWebSocketConnected(userId: UUID, httpSessionId: String, webSocketSessionId: String, webSocketSession: WebSocketSession) {
@@ -90,6 +95,17 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
       }
     }
   }
+
+  fun numberOfConnections() = userSessions.size.toDouble()
 }
 
 data class UserSession(val userId: UUID, val httpSessionId: String, val webSocketSessionId: String, val webSocketSession: WebSocketSession, var roomId: UUID? = null)
+
+@Component
+class ConnectionsMetric(private val metricRegistry: MeterRegistry, private val userSessionsState: UserSessionsState) {
+
+      val connectionGauge = Gauge.builder("custom.connections", userSessionsState) { userSessionsState.numberOfConnections() }
+        .description("a look at the connections")
+        .register(metricRegistry)
+
+}
