@@ -40,7 +40,8 @@ data class AdminRoomJson(val name: String, val withHistory: Boolean, val id: UUI
 @RequestMapping(path = arrayOf("/admin/users"))
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 class AdminUsersResource(private val userRepository: UserRepository,
-                         private val roomRepository: RoomRepository) {
+                         private val roomRepository: RoomRepository,
+                         private val userSessionsState: UserSessionsState) {
 
   @PutMapping(path = arrayOf("/{id}/activate"))
   fun activate(@PathVariable userId: UUID) {
@@ -50,6 +51,8 @@ class AdminUsersResource(private val userRepository: UserRepository,
   @PutMapping(path = arrayOf("/{id}/deactivate"))
   fun deactivate(userId: UUID) {
     userRepository.getById(userId).isEnabled = false
+    userSessionsState.deactivate(userId)
+
   }
 
   @PutMapping(path = arrayOf("/{id}/rooms"), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))

@@ -101,6 +101,13 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
   }
 
   fun numberOfConnections() = userSessions.size.toDouble()
+
+  fun deactivate(userId: UUID) {
+    userSessions.filter { it.userId == userId}.forEach {
+      it.webSocketSession.close()
+    }
+    userSessions.removeIf { it.userId == userId }
+  }
 }
 
 data class UserSession(val userId: UUID, val httpSessionId: String, val webSocketSessionId: String, val webSocketSession: WebSocketSession, var roomId: UUID? = null)
