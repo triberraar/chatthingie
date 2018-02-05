@@ -76,7 +76,7 @@ class ChatMessageHandler(private val userSessionsState: UserSessionsState, priva
       logger().error { "User ${userSession.userId} is not in the room ${message.roomId}" }
     }
     val user = userRepository.getById(userSession.userId)
-    val right = user.rights.find { it.room.id == message.roomId }
+    val right = user.rights.find { it.roomId == message.roomId }
     if(right == null || !right.write) {
       logger.error { "User ${userSession.userId} is not allowed to write in room ${message.roomId}" }
     }

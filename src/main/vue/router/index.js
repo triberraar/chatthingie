@@ -2,9 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/pages/Login'
 import Home from '@/pages/Home'
+import Admin from '@/pages/Admin'
 import store from '@/store'
-import { LOGIN, HOME } from './constants'
+import { LOGIN, HOME, ADMIN } from './constants'
 import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
+import { IS_ADMIN } from '@/store/modules/chat/constants'
 import { connect } from '@/ws'
 
 Vue.use(Router)
@@ -20,6 +22,14 @@ const router = new Router({
       path: '/home',
       name: HOME,
       component: Home
+    },
+    {
+      path: '/admin',
+      name: ADMIN,
+      component: Admin,
+      meta: {
+        requiresAdmin: true
+      }
     },
     {
       path: '*',
@@ -42,14 +52,9 @@ router.beforeEach((to, from, next) => {
       return next()
     }
   }
-  if (to.meta.requiresAuth && !store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
-    return next({ name: LOGIN })
-  }
-  if (to.meta.requiredRole) {
-    const hasRole = store.getters[SECURITY_NAMESPACE + '/' + 'roles'].find(e => {
-      return e === to.meta.requiredRole
-    })
-    if (!hasRole) {
+  if (to.meta.requiresAdmin) {
+    const isAdmin = store.getters[IS_ADMIN]
+    if (!isAdmin) {
       return next({ name: LOGIN })
     }
   }

@@ -1,5 +1,6 @@
 package be.tribersoft.chatthingie.state
 
+import be.tribersoft.chatthingie.domain.RoomRepository
 import be.tribersoft.chatthingie.domain.UserRepository
 import be.tribersoft.chatthingie.rest.toRoomJson
 import be.tribersoft.chatthingie.rest.toRoomUserJson
@@ -22,7 +23,8 @@ import java.util.*
 @Component
 class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),
                         private val objectMapper: ObjectMapper,
-                        private val userRepository: UserRepository) {
+                        private val userRepository: UserRepository,
+                        private val roomRepository: RoomRepository) {
   companion object: KLogging()
 
   @Synchronized fun userWebSocketConnected(userId: UUID, httpSessionId: String, webSocketSessionId: String, webSocketSession: WebSocketSession) {
@@ -47,13 +49,13 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
 
   @Synchronized fun leaveRoom(userId: UUID, httpSessionId: String, previousRoom: UUID) {
     userSessions.forEach {
-      if(userRepository.getById(it.userId).rights.find { it.room.id == previousRoom } != null) {
+      if(userRepository.getById(it.userId).rights.find { it.roomId == previousRoom } != null) {
         val userIds = userSessions.filter { it.roomId == previousRoom && httpSessionId != it.httpSessionId }.map { it.userId }
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
-        val right = userRepository.getById(it.userId).rights.find { it.room.id == previousRoom }!!
+        val right = userRepository.getById(it.userId).rights.find { it.roomId == previousRoom }!!
         if(it.webSocketSession.isOpen) {
           try {
-            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons, roomRepository.getById(right.roomId).name)))))
           } catch (e: Throwable) {
             logger.warn { "Sending message to WS failed $e" }
           }
@@ -69,13 +71,13 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
     userSessionsForHttpSession.forEach { it.roomId = currentRoom }
 
     userSessions.forEach {
-      if(userRepository.getById(it.userId).rights.find { it.room.id == currentRoom } != null) {
+      if(userRepository.getById(it.userId).rights.find { it.roomId == currentRoom } != null) {
         val userIds = usersInRoom(currentRoom)
         val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
-        val right = userRepository.getById(it.userId).rights.find { it.room.id == currentRoom }!!
+        val right = userRepository.getById(it.userId).rights.find { it.roomId == currentRoom }!!
         if(it.webSocketSession.isOpen) {
           try {
-            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons)))))
+            it.webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(RoomMessage(right.toRoomJson(roomUserJsons, roomRepository.getById(right.roomId).name)))))
           } catch (e: Throwable) {
             logger.warn { "Sending message to WS failed $e" }
           }

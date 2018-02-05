@@ -6,72 +6,88 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
 
-data class User(val id: UUID = UUID.randomUUID(), private val username: String, private val password: String, val rights: Set<Right>, val roles: Set<String>): UserDetails {
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = roles.map { SecurityAuthority(it) }.toMutableSet()
+data class User(val id: UUID = UUID.randomUUID(), private val username: String, private val password: String, private var enabled: Boolean, val rights: MutableSet<Right>, val roles: Set<String>) : UserDetails {
+  override fun getAuthorities(): MutableCollection<out GrantedAuthority> = roles.map { SecurityAuthority(it) }.toMutableSet()
 
-    override fun isEnabled() = true
+  override fun isEnabled() = enabled
 
-    override fun getUsername() = username
+  fun setEnabled(e: Boolean) {
+    enabled = e
+  }
 
-    override fun isCredentialsNonExpired() = true
+  override fun getUsername() = username
 
-    override fun getPassword() = password
+  override fun isCredentialsNonExpired() = true
 
-    override fun isAccountNonExpired() = true
+  override fun getPassword() = password
 
-    override fun isAccountNonLocked() = true
+  override fun isAccountNonExpired() = true
+
+  override fun isAccountNonLocked() = true
 }
 
-data class SecurityAuthority(val role: String): GrantedAuthority {
-    override fun getAuthority(): String {
-        return role
-    }
+data class SecurityAuthority(val role: String) : GrantedAuthority {
+  override fun getAuthority(): String {
+    return role
+  }
 }
-data class Right(val room: Room, val write: Boolean)
+
+data class Right(val roomId: UUID, val write: Boolean)
 
 @Component
-class UserRepository(private val users: Set<User> = initialUsers()) {
+class UserRepository(private val users: MutableSet<User> = initialUsers()) {
 
-    fun getByUsernameAndPassword(username: String, password: String): User {
-        val user = users.find { it.username == username && it.password == password }
-        return if(user != null) user else throw BadCredentialsException("invalid login")
-    }
+  fun getByUsernameAndPassword(username: String, password: String): User {
+    val user = users.find { it.username == username && it.password == password && it.isEnabled }
+    return if (user != null) user else throw BadCredentialsException("invalid login")
+  }
 
-    fun getById(id: UUID): User = users.find { it.id.equals(id) }!!
-    fun getByIds(ids: List<UUID>) = users.filter { ids.contains(it.id) }
+  fun getById(id: UUID): User = users.find { it.id.equals(id) }!!
 
-    fun loadUserByUsername(username: String): UserDetails {
-        val user = users.find { it.username == username }
-        return if(user != null) user else throw BadCredentialsException("invalid login")
-    }
+  fun getByIds(ids: List<UUID>) = users.filter { ids.contains(it.id) }
+
+  fun loadUserByUsername(username: String): UserDetails {
+    val user = users.find { it.username == username }
+    return if (user != null) user else throw BadCredentialsException("invalid login")
+  }
+
+  fun all() = users
+
+  fun add(user: User) = users.add(user)
+
+  fun remove(userId: UUID) = users.removeIf { it.id == userId }
 
 }
 
-fun initialUsers(): Set<User> {
-    return setOf<User>(User(
-            username = "admin",
-            password = "admin",
-            rights = setOf(
-              Right(room1, true),
-              Right(room2, true),
-              Right(room3, true)
-            ),
-            roles = setOf("ROLE_USER", "ROLE_ADMIN")
-    ), User(
-            username = "user1",
-            password = "user1",
-            rights = setOf(
-                    Right(room1, true),
-                    Right(room2, false)
-            ),
-            roles = setOf("ROLE_USER")
-    ),  User(
-            username = "user2",
-            password = "user2",
-            rights = setOf(
-                    Right(room1, true),
-                    Right(room2, false)
-            ),
-            roles = setOf("ROLE_USER"))
-    )
+fun initialUsers(): MutableSet<User> {
+  return mutableSetOf(User(
+    username = "admin",
+    password = "admin",
+    rights = mutableSetOf(
+      Right(room1.id, true),
+      Right(room2.id, true),
+      Right(room3.id, true)
+    ),
+    roles = setOf("ROLE_USER", "ROLE_ADMIN"),
+    enabled = true
+  ), User(
+    username = "user1",
+    password = "user1",
+    rights = mutableSetOf(
+      Right(room1.id, true),
+      Right(room2.id, false)
+    ),
+    roles = setOf("ROLE_USER"),
+    enabled = true
+  ), User(
+    username = "user2",
+    password = "user2",
+    rights = mutableSetOf(
+      Right(room1.id, true),
+      Right(room2.id, false)
+    ),
+    roles = setOf("ROLE_USER"),
+    enabled = true
+  )
+  )
 }

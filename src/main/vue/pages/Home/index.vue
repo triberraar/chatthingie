@@ -87,7 +87,7 @@ import { GET_USER,
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
-import { LOGIN } from '@/router/constants'
+import { LOGIN, ADMIN } from '@/router/constants'
 import axios from 'axios'
 import { connect, send } from '@/ws'
 import moment from 'moment'
@@ -164,7 +164,7 @@ export default {
       })
     },
     adminClicked () {
-      this.showSnackbar({type: 'warning', text: 'No admin stuff yet'})
+      this.$router.push({ name: ADMIN })
     },
     joinRoomClicked (id) {
       this.joinRoom(id)
