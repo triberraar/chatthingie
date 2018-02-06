@@ -13,6 +13,9 @@ var socket = null
 var reconnectTimeout = null
 
 export const connect = function (force) {
+  if (socket && socket.readyState === socket.OPEN) {
+    return
+  }
   disconnect()
   if (force) {
     reconnect = 0

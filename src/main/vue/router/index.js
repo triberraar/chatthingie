@@ -3,8 +3,10 @@ import Router from 'vue-router'
 import Login from '@/pages/Login'
 import Home from '@/pages/Home'
 import Admin from '@/pages/Admin'
+import AdminUsers from '@/pages/Admin/Users'
+import AdminRooms from '@/pages/Admin/Rooms'
 import store from '@/store'
-import { LOGIN, HOME, ADMIN } from './constants'
+import { LOGIN, HOME, ADMIN_ROOMS, ADMIN_USERS } from './constants'
 import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
 import { IS_ADMIN } from '@/store/modules/chat/constants'
 import { connect } from '@/ws'
@@ -25,11 +27,28 @@ const router = new Router({
     },
     {
       path: '/admin',
-      name: ADMIN,
       component: Admin,
       meta: {
         requiresAdmin: true
-      }
+      },
+      children: [
+        {
+          path: 'rooms',
+          component: AdminRooms,
+          name: ADMIN_ROOMS,
+          meta: {
+            requiresAdmin: true
+          }
+        },
+        {
+          path: 'users',
+          component: AdminUsers,
+          name: ADMIN_USERS,
+          meta: {
+            requiresAdmin: true
+          }
+        }
+      ]
     },
     {
       path: '*',

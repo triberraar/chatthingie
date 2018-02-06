@@ -34,7 +34,7 @@
       v-spacer
       v-icon(:color="connectionStatusColor" v-bind:class="connectionStatusStyle" @click="connectClicked") flash_on
       v-menu(offset-y)
-        v-btn(slot="activator") {{username}}
+        v-btn(flat slot="activator") {{username}}
         v-list
           v-list-tile(v-if="isAdmin" @click="adminClicked")
             v-icon accessibility
@@ -87,7 +87,7 @@ import { GET_USER,
 } from '@/store/modules/chat/constants'
 import { SHOW_SNACKBAR } from '@/store/modules/snackbar/constants'
 import { NAMESPACE as SECURITY_NAMESPACE, LOGOUT } from '@/store/modules/security/constants'
-import { LOGIN, ADMIN } from '@/router/constants'
+import { LOGIN, ADMIN_ROOMS } from '@/router/constants'
 import axios from 'axios'
 import { connect, send } from '@/ws'
 import moment from 'moment'
@@ -164,7 +164,7 @@ export default {
       })
     },
     adminClicked () {
-      this.$router.push({ name: ADMIN })
+      this.$router.push({ name: ADMIN_ROOMS })
     },
     joinRoomClicked (id) {
       this.joinRoom(id)
