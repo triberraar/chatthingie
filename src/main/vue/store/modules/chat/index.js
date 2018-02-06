@@ -85,6 +85,7 @@ const actions = {
     axios.put('rooms/join', {previousRoom: previousRoomId, currentRoom: roomId}).then((response) => {
       commit(ROOM, response.data)
       commit(UPDATE_ROOM, response.data)
+      // TODO also do something with the messages (like commit a new mutation and set the state.messages to the messages)
     }).catch(() => {
       commit(SHOW_SNACKBAR, {type: 'error', text: 'Can\'t join room'})
     })
