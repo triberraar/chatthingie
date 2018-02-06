@@ -121,13 +121,13 @@ export default {
         axios.post(`admin/user/${this.id}/room`, {roomId: this.newRoom.roomId, write: this.newRoom.write}).then(() => {
 
         }).catch(() => {
-        this.showSnackbar({type: 'error', text: 'Add room failed'})
-      }).finally(() => {
-        this.newRoom.roomId = undefined
-        this.newRoom.write = false
-        this.dialog = false
-        this.getUser()
-      })
+          this.showSnackbar({type: 'error', text: 'Add room failed'})
+        }).finally(() => {
+          this.newRoom.roomId = undefined
+          this.newRoom.write = false
+          this.dialog = false
+          this.getUser()
+        })
       }
     },
     getRooms () {
@@ -136,7 +136,7 @@ export default {
       }).catch(() => {
         this.showSnackbar({type: 'error', text: 'Can\'t get rooms'})
       })
-    },
+    }
   }
 }
 </script>
