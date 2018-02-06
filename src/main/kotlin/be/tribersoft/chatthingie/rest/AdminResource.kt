@@ -15,7 +15,7 @@ import java.util.*
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 class AdminRoomResource(private val roomRepository: RoomRepository, private val sessionsState: UserSessionsState, private val userRepository: UserRepository) {
 
-  @GetMapping(path = arrayOf("all"), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
+  @GetMapping(produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
   fun all() = roomRepository.all().map { AdminRoomJson(it.name, it.withHistory, it.id) }
 
   @PostMapping( produces = arrayOf(MediaType.APPLICATION_JSON_VALUE), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE))
@@ -38,22 +38,21 @@ class AdminRoomResource(private val roomRepository: RoomRepository, private val 
 data class AdminRoomJson(val name: String, val withHistory: Boolean, val id: UUID?)
 
 @RestController
-@RequestMapping(path = arrayOf("/admin/users"))
+@RequestMapping(path = arrayOf("/admin/user"))
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 class AdminUsersResource(private val userRepository: UserRepository,
                          private val roomRepository: RoomRepository,
                          private val userSessionsState: UserSessionsState) {
 
   @PutMapping(path = arrayOf("/{id}/activate"))
-  fun activate(@PathVariable userId: UUID) {
-    userRepository.getById(userId).isEnabled = true
+  fun activate(@PathVariable("id") id: UUID) {
+    userRepository.getById(id).isEnabled = true
   }
 
   @PutMapping(path = arrayOf("/{id}/deactivate"))
-  fun deactivate(userId: UUID) {
-    userRepository.getById(userId).isEnabled = false
-    userSessionsState.deactivate(userId)
-
+  fun deactivate(@PathVariable("id")id: UUID) {
+    userRepository.getById(id).isEnabled = false
+    userSessionsState.deactivate(id)
   }
 
   @PutMapping(path = arrayOf("/{id}/rooms"), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
@@ -63,12 +62,22 @@ class AdminUsersResource(private val userRepository: UserRepository,
     return userRepository.getById(userId).rights.map { AdminRightJson(it.roomId, it.write, roomRepository.getById(roomId = it.roomId).name) }
   }
 
+  @PostMapping(path = arrayOf("/{id}/room"), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE))
+  fun addRoom(@PathVariable("id") userId: UUID, @RequestBody adminRightJson: AdminRightJson) {
+    userRepository.getById(userId).rights.add(Right(adminRightJson.roomId, adminRightJson.write))
+  }
+
+  @DeleteMapping(path = arrayOf("/{id}/room/{roomId}"))
+  fun deleteRoom(@PathVariable("id") userId: UUID, @PathVariable("roomId") roomId: UUID) {
+    userRepository.getById(userId).rights.removeIf { it.roomId == roomId }
+  }
+
   @GetMapping(produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
   fun all() = userRepository.all().map { AdminUserJson(it.id, it.isEnabled, it.username) }
 
   @GetMapping(path = arrayOf("/{id}"), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
-  fun get(@PathVariable userId: UUID): AdminUserDetailsJson {
-    val user = userRepository.getById(userId)
+  fun get(@PathVariable id: UUID): AdminUserDetailsJson {
+    val user = userRepository.getById(id)
     return AdminUserDetailsJson(user.id, user.isEnabled, user.username, user.rights.map { AdminRightJson(it.roomId, it.write, roomRepository.getById(it.roomId).name) })
   }
 }

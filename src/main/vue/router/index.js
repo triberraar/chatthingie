@@ -4,9 +4,10 @@ import Login from '@/pages/Login'
 import Home from '@/pages/Home'
 import Admin from '@/pages/Admin'
 import AdminUsers from '@/pages/Admin/Users'
+import AdminUser from '@/pages/Admin/Users/details'
 import AdminRooms from '@/pages/Admin/Rooms'
 import store from '@/store'
-import { LOGIN, HOME, ADMIN_ROOMS, ADMIN_USERS } from './constants'
+import { LOGIN, HOME, ADMIN_ROOMS, ADMIN_USERS, ADMIN_USER } from './constants'
 import { NAMESPACE as SECURITY_NAMESPACE } from '@/store/modules/security/constants'
 import { IS_ADMIN } from '@/store/modules/chat/constants'
 import { connect } from '@/ws'
@@ -47,6 +48,15 @@ const router = new Router({
           meta: {
             requiresAdmin: true
           }
+        },
+        {
+          path: 'users/:id',
+          component: AdminUser,
+          name: ADMIN_USER,
+          props: true,
+          meta: {
+            requiresAdmin: true
+          }
         }
       ]
     },
@@ -62,7 +72,6 @@ const router = new Router({
 // use by putting requiresAuth: true if you want the user to be logged in for this route
 // use by putting requiredRole: <role> if you want the user to have a specific role for this route
 router.beforeEach((to, from, next) => {
-  console.log('router')
   if (to.name === LOGIN) {
     if (store.getters[SECURITY_NAMESPACE + '/' + 'loggedIn']) {
       connect(true)

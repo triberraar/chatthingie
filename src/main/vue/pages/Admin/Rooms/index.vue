@@ -8,12 +8,7 @@
             v-icon.green--text.text--darken-2(v-if="props.item.withHistory") done
             v-icon.red--text.text--darken-2(v-else) clear
           td.text-xs-right
-            v-menu(bottom left)
-              v-btn(icon slot="activator")
-                v-icon more_vert
-              v-list
-                v-list-tile(@click="deleteClicked(props.item.id)")
-                  v-list-tile-title Delete
+            v-icon(@click="deleteClicked(props.item.id)") delete
       div
         v-btn(color="primary" @click="dialog = !dialog") Add
         v-dialog(v-model="dialog" persistent max-width="500px")
@@ -53,7 +48,7 @@ export default {
           text: 'With history',
           align: 'left',
           sortable: false
-        },{
+        }, {
           text: '',
           sortable: false
         }
@@ -75,10 +70,10 @@ export default {
       showSnackbar: SHOW_SNACKBAR
     }),
     getRooms () {
-      axios.get('admin/room/all').then(response => {
+      axios.get('admin/room').then(response => {
         this.rooms = response.data
       }).catch(() => {
-        this.showSnackbar({type: 'error', text: 'Can\'t get rooms failed'})
+        this.showSnackbar({type: 'error', text: 'Can\'t get rooms'})
       })
     },
     deleteClicked (id) {

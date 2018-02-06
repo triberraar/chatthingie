@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import mu.KLogging
+import org.springframework.security.core.session.SessionRegistry
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -24,7 +25,8 @@ import java.util.*
 class UserSessionsState(private val userSessions: MutableList<UserSession> = mutableListOf(),
                         private val objectMapper: ObjectMapper,
                         private val userRepository: UserRepository,
-                        private val roomRepository: RoomRepository) {
+                        private val roomRepository: RoomRepository,
+                        private val sessionRegistry: SessionRegistry) {
   companion object: KLogging()
 
   @Synchronized fun userWebSocketConnected(userId: UUID, httpSessionId: String, webSocketSessionId: String, webSocketSession: WebSocketSession) {
@@ -104,7 +106,12 @@ class UserSessionsState(private val userSessions: MutableList<UserSession> = mut
 
   fun deactivate(userId: UUID) {
     userSessions.filter { it.userId == userId}.forEach {
-      it.webSocketSession.close()
+      try {
+        it.webSocketSession.close()
+        sessionRegistry.removeSessionInformation(it.httpSessionId)
+      } catch (e: Throwable) {
+        logger.warn { "Closing websocket failed $e" }
+      }
     }
     userSessions.removeIf { it.userId == userId }
   }

@@ -6,7 +6,6 @@ import { LOGOUT, NAMESPACE } from '@/store/modules/security/constants'
 import { disconnect } from '@/ws'
 
 if (__DEV__) {
-  console.log('true')
   axios.defaults.baseURL = 'api/'
 }
 
