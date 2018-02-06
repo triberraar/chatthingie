@@ -21,10 +21,11 @@ class AdminRoomResource(private val roomRepository: RoomRepository, private val 
   @PostMapping( produces = arrayOf(MediaType.APPLICATION_JSON_VALUE), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE))
   fun create(@RequestBody adminRoomJson: AdminRoomJson): AdminRoomJson {
     val room = Room(adminRoomJson.name, adminRoomJson.withHistory)
+    roomRepository.add(room)
     return AdminRoomJson(room.name, room.withHistory, room.id)
   }
 
-  @DeleteMapping(path = arrayOf("/{roomId}"), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE), consumes = arrayOf(MediaType.APPLICATION_JSON_VALUE))
+  @DeleteMapping(path = arrayOf("/{roomId}"), produces = arrayOf(MediaType.APPLICATION_JSON_VALUE))
   fun delete(@PathVariable("roomId") roomId: UUID) {
     if(sessionsState.usersInRoom(roomId).isNotEmpty()) {
       throw RuntimeException("Can't delete room when there are users in it")

@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import {
   USER,
   IS_ADMIN,
@@ -65,7 +65,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions({
+    ...mapMutations({
       showSnackbar: SHOW_SNACKBAR
     }),
     ...mapMutations(SECURITY_NAMESPACE, {
@@ -90,7 +90,7 @@ export default {
       }).catch(() => {
         this.showSnackbar({type: 'error', text: 'Logout failed'})
       })
-    },
+    }
   }
 }
 </script>

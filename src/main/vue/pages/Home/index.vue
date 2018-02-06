@@ -145,7 +145,6 @@ export default {
     ...mapActions({
       getUser: GET_USER,
       getRooms: GET_ROOMS,
-      showSnackbar: SHOW_SNACKBAR,
       joinRoom: JOIN_ROOM
     }),
     ...mapMutations(SECURITY_NAMESPACE, {
