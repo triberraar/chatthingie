@@ -44,6 +44,7 @@ class RoomResource(private val userRepository: UserRepository, private val userS
     val roomUserJsons = userRepository.getByIds(userIds).map { it.toRoomUserJson() }
     val right = userRepository.getById(user.id).rights.find { it.roomId == joinRoomJson.currentRoom }!!
     return right.toRoomJson(roomUserJsons, roomRepository.getById(right.roomId).name)
+    // TODO user joined a new room, if the room requires it return the messages in it
   }
 }
 

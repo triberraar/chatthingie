@@ -82,6 +82,7 @@ class ChatMessageHandler(private val userSessionsState: UserSessionsState, priva
     }
     message.username = user.username
     userSessionsState.forwardChat(message)
+    // TODO save the message if the room requires
   }
 
 }
