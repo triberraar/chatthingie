@@ -1,4 +1,6 @@
 # chatthingie
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftriberraar%2Fchatthingie.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftriberraar%2Fchatthingie?ref=badge_shield)
+
 
 > It is, duh, a chat thingie
 
@@ -24,3 +26,7 @@ As good as none, and i am pretty sure the js one doesn't work. Feel free to mess
 
 ## Deploy
 Run the jar and server ll boot. For added safety, please run over https/wss.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftriberraar%2Fchatthingie.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftriberraar%2Fchatthingie?ref=badge_large)
